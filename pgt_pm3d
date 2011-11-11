@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#! /usr/bin/env python
 # pgt_pm3d
 # This is part of python_gnuplot_tools
 # Hanno Rein 2011
