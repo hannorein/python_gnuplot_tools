@@ -1,0 +1,38 @@
+#! /usr/bin/env python
+# pgt_pm3d
+# This is part of python_gnuplot_tools
+# Hanno Rein 2011
+#
+# Output n samples at mostConvert a random file into a pm3d map compatible file.
+#
+import sys, math
+from operator import itemgetter
+
+if len(sys.argv)<2:
+	print "Usage: pgt_pm3d [filename] n"
+	sys.exit(0)
+
+if len(sys.argv)>2:
+	filename 	= sys.argv[1]
+	n 		= int(sys.argv[2])
+	f 		= open(filename)
+else:
+	f 		= sys.stdin
+	n 		= int(sys.argv[1])
+		
+
+
+# Read data
+data = []
+m = 0
+for line in f:
+	data.append(line)
+	m = m + 1
+
+if m>n:
+	for i in range(n):
+		index = int(math.floor(i*float(m)/float(n)))
+		print data[index],
+else:
+	for i in range(m):
+		print data[i],
