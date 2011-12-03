@@ -5,23 +5,32 @@
 #
 # Convert a random file into a pm3d map compatible file.
 #
-import sys, math
+import sys, math, fileinput, os.path
 from operator import itemgetter
 
-if len(sys.argv)<5:
-	print "Usage: pgt_pm3d filename field1 field2 field3 [repeat]"
+if len(sys.argv)<4:
+	print "Usage: pgt_pm3d [filename] field1 field2 field3 [repeat]"
 	sys.exit(0)
 
 filename 	= sys.argv[1]
-field1 		= int(sys.argv[2])-1
-field2 		= int(sys.argv[3])-1
-field3 		= int(sys.argv[4])-1
+if os.path.isfile(filename):
+	fi = fileinput.input(filename)
+	argshift = 0
+	print "file!"
+else:
+	fi = sys.stdin
+	argshift = -1
+	print "no file!"
 
-if len(sys.argv)>5:
-	if sys.argv[5]=="repeat":
+field1 		= int(sys.argv[2+argshift])-1
+field2 		= int(sys.argv[3+argshift])-1
+field3 		= int(sys.argv[4+argshift])-1
+
+if len(sys.argv)>5+argshift:
+	if sys.argv[5+argshift]=="repeat":
 		repeat = 1
 	else:
-		repeat = int(sys.argv[5])
+		repeat = int(sys.argv[5+argshift])
 else:
 	repeat = 1
 
@@ -32,14 +41,13 @@ if field1<0 or field2<0 or field3<0:
 
 # Read data
 data = []
-f = open(filename)
-for line in f:
+for line in fi:
 	rows = line.split()
 	f1 = float(rows[field1])
 	f2 = float(rows[field2])
 	f3 = float(rows[field3])
 	data.append([f1,f2,f3])
-f.close()
+fi.close()
 
 # Sort data
 
@@ -53,12 +61,15 @@ last_xi	= 0
 for i in range(0,len(data)):
 	line = data[i]
 	x = line[0]
-	if repeat and x != last_x:
+	if x != last_x:
 		if not math.isnan(last_x):
-			last_xi = i
-			line_o = data[i-1]
-			line_oo = data[i-2]
-			print "%e\t%e\t%e\n" % (line_o[0],2.*line_o[1]-line_oo[1],line_o[2])
+			if repeat:
+				last_xi = i
+				line_o = data[i-1]
+				line_oo = data[i-2]
+				print "%e\t%e\t%e\n" % (line_o[0],2.*line_o[1]-line_oo[1],line_o[2])
+			else:
+				print ""
 		last_x = x
 	print "%e\t%e\t%e" % (x,line[1],line[2])
 
