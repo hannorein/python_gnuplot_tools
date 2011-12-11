@@ -1,24 +1,24 @@
 #! /usr/bin/env python
-# pgt_maxn
+# pgt_fraction
 # This is part of python_gnuplot_tools
 # Hanno Rein 2011
 #
-# Output n samples at most.
+# Outputs a fraction of the lines.
 #
 import sys, math
 from operator import itemgetter
 
 if len(sys.argv)<2:
-	print "Usage: pgt_maxn [filename] n"
+	print "Usage: pgt_fraction [filename] fraction"
 	sys.exit(0)
 
 if len(sys.argv)>2:
 	filename 	= sys.argv[1]
-	n 		= int(sys.argv[2])
+	fraction	= float(sys.argv[2])
 	f 		= open(filename)
 else:
 	f 		= sys.stdin
-	n 		= int(sys.argv[1])
+	fraction	= float(sys.argv[1])
 		
 
 
@@ -29,10 +29,7 @@ for line in f:
 	data.append(line)
 	m = m + 1
 
-if m>n:
-	for i in range(n):
-		index = int(math.floor(i*float(m)/float(n)))
-		print data[index],
-else:
-	for i in range(m):
-		print data[i],
+n=int(m*fraction)
+for i in range(n):
+	index = int(math.floor(i*float(m)/float(n)))
+	print data[index],
