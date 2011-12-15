@@ -16,11 +16,9 @@ filename 	= sys.argv[1]
 if os.path.isfile(filename):
 	fi = fileinput.input(filename)
 	argshift = 0
-	print "file!"
 else:
 	fi = sys.stdin
 	argshift = -1
-	print "no file!"
 
 field1 		= int(sys.argv[2+argshift])-1
 field2 		= int(sys.argv[3+argshift])-1
