@@ -1,0 +1,59 @@
+#! /usr/bin/env python
+# pgt_image
+# This is part of python_gnuplot_tools
+# Hanno Rein 2011
+#
+# Bin binary files to another binary file.
+#
+import sys, math, fileinput, os.path, struct
+from operator import itemgetter
+
+if len(sys.argv)<4:
+	print "Usage: pgt_pm3d basefilename binsize width [outputfile]"
+	sys.exit(0)
+
+basefilename 	= sys.argv[1]
+binsize 	= float(sys.argv[2])
+width	 	= float(sys.argv[3])
+
+if len(sys.argv)>4:
+	ofile = open(sys.argv[4], "wb")
+else:
+	ofile = sys.stdout
+
+xmin  	= -width/2.
+xmax  	= width/2.
+binN    = int(math.ceil((xmax-xmin)/binsize))
+
+fileid = 0
+
+def addtobins(filename):
+	global bins, xmin, xmax, binN
+	ifile = open(filename, "rb")
+	data = ifile.read(8)
+	while data:
+		x = struct.unpack('=d',data)[0]
+		index = int(math.floor((x-xmin)/(xmax-xmin)*float(binN)))
+		bins[index] += 1
+		data = ifile.read(8)
+	ifile.close()
+	
+
+
+while os.path.isfile(basefilename+"_%09d"%fileid) or os.path.isfile(basefilename+"_%09d_0"%fileid):
+	bins 	= [0] * binN 
+	if os.path.isfile(basefilename+"_%09d_0"%fileid):
+		mpi_id = 0
+		while os.path.isfile(basefilename+"_%09d_%d"% (fileid,mpi_id)):
+			filename = basefilename+"_%09d_%d"%(fileid,mpi_id)
+			addtobins(filename)
+			mpi_id = mpi_id + 1
+	else:
+		filename = basefilename+"_%09d"%fileid
+		addtobins(filename)
+	
+	ofile.write(struct.pack('f'*binN,*bins))
+	fileid = fileid + 1
+
+sys.stderr.write("lines: %d\n"%fileid)
+ofile.close()
